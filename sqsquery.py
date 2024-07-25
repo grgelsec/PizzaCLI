@@ -1,7 +1,4 @@
-import json
 import boto3
-import sys
-import logging
 from botocore.exceptions import ClientError
 
 sqs = boto3.client('sqs',
