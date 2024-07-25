@@ -1,6 +1,9 @@
 import json
 import click
 import boto3
+import sys
+import logging
+from botocore.exceptions import ClientError
 
 #cli takes in 2 orders at a time
 #if chef 1 is busy, then try chef 2
@@ -14,35 +17,23 @@ sqs = boto3.client('sqs',
 
 queue_url = 'L'
 
-def place_order(order):
-    response = sqs.send_message(
-        QueueUrl=queue_url,
-        MessageBody=json.dumps(order)
-    )
-
-def get_order():
+def get_order(max_number, wait_time):
     response = sqs.receive_message(
         QueueUrl = queue_url,
-        MaxNumberOfMessages=1,
-        WaitTimeSeconds=10
+        AttributeNames=['Body'],
+        MessageAttributeNames=['All'],
+        MaxNumberOfMessages=max_number,
+        WaitTimeSeconds=wait_time
     )
-
+    
     messages = response.get('Messages', [])
-    if messages: 
-        message = message[0]
-        receipt_handle = message['ReceiptHandle']
-        order = json.loads(message['Body'])
-        print(f"Received order: {order}")
-
-         # Delete received message from queue
-        sqs.delete_message(
-            QueueUrl=queue_url,
-            ReceiptHandle=receipt_handle
-        )
+    if messages:
+        message = messages[1]
+        order = message['Body']
         return order
     else:
-        print("No orders available")
-        return None
+        return 'No messages'
+    
     
 def print_banner():
     return """
@@ -53,9 +44,9 @@ def print_banner():
 \033[97m |_|   |_/___/___\__,_|  \033[0m\033[97m|____/|_| |_|\___/| .__/ \033[0m
 \033[97m                         \033[0m\033[97m                  |_|    \033[0m
     """
-place_order({"type:" "Cheese"})
 
-order = get_order()
+order = get_order(2, 10)
+
 @click.command()
 def cli():
     click.echo(print_banner())
