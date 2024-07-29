@@ -13,22 +13,22 @@ sqs = boto3.client('sqs',
 
 queue_url = os.getenv('SQS_URL')
 
-def get_order(max_number, wait_time):
+def get_order(wait_time):
     response = sqs.receive_message(
         QueueUrl = queue_url,
         AttributeNames=['Body'],
         MessageAttributeNames=['All'],
-        MaxNumberOfMessages=max_number,
         WaitTimeSeconds=wait_time
     )
     
     messages = response.get('Messages', [])
     #need to add proper error handling for failed requests
-    if messages:
-        message = messages[1]
-        order = message['Body']
-        return order
-    else:
-        return 'No messages'
-    
-order = get_order(2, 10)
+    for x in range(3):
+        if messages:
+            message = messages[x]
+            order = message['Body']
+            return order
+        else:
+            return 'No messages'
+        
+#print(get_order(10))

@@ -1,9 +1,7 @@
 import click
 import sqsquery
 
-#cli takes in 2 orders at a time
-#if chef 1 is busy, then try chef 2
-#if chef 1 and chef 2 are busy then add a to a queue (FIFO), display count of the queue
+#grab order from sqs and assign to a chef, assign to chef one, if chef one is busy, assign to chef two, if both chefs are busy, add to waitlist 
     
 def print_banner():
     return """
@@ -15,11 +13,26 @@ def print_banner():
 \033[97m                         \033[0m\033[97m                  |_|    \033[0m
     """
 
+#@click.group()
+#def cli():
+#    pass
+
+#@click.command()
+#def start():
+#    click.echo(print_banner())
+#    click.echo("Welcome to George's Pizza Shop!")
+
 @click.command()
-def cli():
-    click.echo(print_banner())
-    if sqsquery.order:
-        click.echo(sqsquery.order)
+#calls get_orders form sqsquery and forms a order list
+def orders():
+    customer_Orders = []
+    for x in range(3):
+        print(f"Getting order {x}")
+        order = sqsquery.get_order(5)
+        customer_Orders.append(order)
+    return print(customer_Orders)
+
+
 #test
 if __name__ == '__main__':
-    cli()
+    orders()
