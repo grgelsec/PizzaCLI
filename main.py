@@ -1,5 +1,6 @@
 import click
 import sqsquery
+import time 
 
 #grab order from sqs and assign to a chef, assign to chef one, if chef one is busy, assign to chef two, if both chefs are busy, add to waitlist 
     
@@ -13,26 +14,42 @@ def print_banner():
 \033[97m                         \033[0m\033[97m                  |_|    \033[0m
     """
 
-#@click.group()
-#def cli():
-#    pass
+def setTime(order):
+    time_dict = {
+        'Pizza': 10,
+        'Wings': 3,
+        'Pasta': 8,
+        'Lasagna': 5,
+        'Calzone': 12
+    }
+    return time_dict.get(order, 0)
 
-#@click.command()
-#def start():
-#    click.echo(print_banner())
-#    click.echo("Welcome to George's Pizza Shop!")
+@click.group()
+def cli():
+    pass
+
+@click.command()
+def start():
+    click.echo(print_banner())
+    click.echo("Welcome to George's Pizza Shop!")
 
 @click.command()
 #calls get_orders form sqsquery and forms a order list
-def orders():
+def cook():
     customer_Orders = []
     for x in range(3):
-        print(f"Getting order {x}")
+        print(f"Getting order {x + 1}")
         order = sqsquery.get_order(5)
         customer_Orders.append(order)
-    return print(customer_Orders)
+    order_time = setTime(customer_Orders[0])
+    print(order_time)
+    time.sleep(order_time)
+    print("done")
 
 
-#test
+cli.add_command(start)
+cli.add_command(cook)
+
+
 if __name__ == '__main__':
-    orders()
+    cli()
