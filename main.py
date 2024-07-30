@@ -20,7 +20,12 @@ def setTime(order):
         'Wings': 3,
         'Pasta': 8,
         'Lasagna': 5,
-        'Calzone': 12
+        'Calzone': 12,
+        'Cheese Pizza': 7,
+        'Pepperoni Pizza': 13,
+        'Vodka Pasta': 14,
+        'Breadsticks': 6,
+        'Pretzel Sticks': 4
     }
     return time_dict.get(order, 0)
 
@@ -35,16 +40,28 @@ def start():
 
 @click.command()
 #calls get_orders form sqsquery and forms a order list
+#could put the timers in the loop so that they are dependent on the timers finishing to pop orders form the array
 def cook():
     customer_Orders = []
-    for x in range(3):
+    for x in range(5):
         print(f"Getting order {x + 1}")
         order = sqsquery.get_order(5)
         customer_Orders.append(order)
-    order_time = setTime(customer_Orders[0])
-    print(order_time)
-    time.sleep(order_time)
-    print("done")
+    while len(customer_Orders) != 0:
+        order_time1 = setTime(customer_Orders[0])
+        customer_Orders.pop(0)
+        if len(customer_Orders) > 1:
+            chefTwo = True
+            order_time2 = setTime(customer_Orders[1])
+            customer_Orders.pop(1)
+        print("Chef one is cooking")
+        time.sleep(order_time1)
+        if chefTwo:
+            time.sleep(order_time2)
+            print("Chef two is cooking")
+        print("ready to serve")
+    print(customer_Orders)
+    
 
 
 cli.add_command(start)

@@ -23,7 +23,7 @@ def get_order(wait_time):
     
     messages = response.get('Messages', [])
     #need to add proper error handling for failed requests
-    for x in range(3):
+    for x in range(5):
         if messages:
             message = messages[x]
             order = message['Body']
